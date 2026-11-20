@@ -6,6 +6,10 @@ Authentication: **OAuth authorization code + PKCE**
 
 Each participant signs in to their own Trippi account. Select the intended trips and permissions on the Trippi consent screen. Do not copy another user's access token, browser cookies or login code.
 
+## Setup with your assistant
+
+[Copy this setup instruction](setup-prompt.md) into a client that can run commands or manage MCP settings. It checks for an existing connection, preserves other settings, and starts supported setup. You complete sign-in and select access in the browser. A chat without those capabilities receives manual steps; pasting text alone does not install a connector.
+
 ## ChatGPT
 
 1. Open the custom MCP connection flow in Plugins/Apps. Menu names and availability depend on the account and workspace.
@@ -25,7 +29,7 @@ codex mcp add trippi --url https://trippitroppa.app/mcp
 codex mcp login trippi
 ```
 
-Complete the browser sign-in and consent. Start a session that loads the connection, then ask Codex to list permitted trips. [examples/codex.toml](../examples/codex.toml) is the equivalent endpoint configuration; merge it into existing settings rather than overwriting them. Commands were checked against the current CLI's help; this guide does not claim an interactive sign-in was completed in every client version.
+Check an existing connection with `codex mcp get trippi --json` before adding it; do not overwrite a different server. Adding a server may already start OAuth: run `login` only if authentication is still needed. Complete the browser sign-in and consent. Start a session that loads the connection, then ask Codex to list permitted trips. [examples/codex.toml](../examples/codex.toml) is the equivalent endpoint configuration; merge it into existing settings rather than overwriting them. Commands were checked against the current CLI's help; this guide does not claim an interactive sign-in was completed in every client version.
 
 ## Claude Code
 
@@ -45,6 +49,7 @@ The JSON example is specifically for Claude Code's configuration format. Other a
 
 - The live authorization metadata determines whether automatic OAuth client registration is supported. If it contains `registration_endpoint`, let the client use it. Do not invent a client ID or callback.
 - If the server does not advertise registration, that client needs a separately registered exact callback and Client ID. The ChatGPT Client ID is intended only for its registered callbacks.
+- If you saw `invalid_origin` after confirming access, restart Connect from your AI client to open a fresh Trippi authorization page. Do not resubmit an old error page.
 - A `401` response before sign-in is expected. Reauthenticate after expiry or revoked access; a configured URL is not proof of a working connection.
 - Missing trips usually mean the account, membership or consent selection differs. Check the account and selected trips in Trippi.
 - A forbidden operation does not mean a broken connection. Ask for an allowed action or have the organizer adjust access deliberately.

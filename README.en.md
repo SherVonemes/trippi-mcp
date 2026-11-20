@@ -74,3 +74,7 @@ Once MCP is connected, ask your AI to find the forwarded materials, check dates 
 ## File already attached to your AI chat
 
 With Trippi connected, attach the PDF/image and ask your AI to save the original to your trip and add the same card to Plan. File-input capable hosts can call `attach_chat_file`; other MCP clients can transfer actual bytes through `material.upload`. Refresh cached tools after upgrading. If the host only exposes extracted text and cannot transfer the original, the AI must say so and offer the Trippi or Telegram uploader. File names or summaries are not proof of a stored original. Maximum supported original size is 10 MiB; client limits may be lower.
+
+## Let your assistant set up the connection
+
+[Copy the setup instruction](docs/setup-prompt.md) into an AI client with command or MCP configuration access. It can add the server and start OAuth while preserving other connections. You still sign in and choose access in the browser. Ordinary chats without those capabilities need the manual setup steps. Once connected, ask to open your trip and read its current Plan.
