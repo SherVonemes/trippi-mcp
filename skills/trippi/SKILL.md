@@ -23,6 +23,27 @@ For travel research, use the client's available web search or a configured servi
 
 For Plan updates, use the complete plan tuple required by the selected workspace schema. Removing a card from the Plan is different from deleting it. For a journey after midnight, use the actual departure date and preserve both arrival and departure timezones when known.
 
+## Forwarded bookings and files
+
+Check the current catalog first: deployments may expose different intake actions. Use `read_workspace` with `action: "intake.pending"` to discover saved, unreviewed email, Telegram and web proposals. Pass `params.limit` (1–50) and follow every `params.cursor` returned as `nextCursor`. If the service reports `workspace_intake_changed`, restart the listing; never silently omit later pages. This list contains pending proposals, not all accepted cards. Files already saved as cards are in `get_workspace_context` and `material.list`.
+
+**Choose the path by the saved object, not merely by its channel.** Sending a supported PDF/PNG/JPEG (up to 10 MiB) to the linked personal Telegram chat creates a private source-linked document card with its original file. Find it in `get_workspace_context`, read `card.get` and `material.list`, and use available material pages from context or `material.download` for an explicit original-file read. Check extraction status: text PDFs can have extracted pages; PNG/JPEG are saved with `image_unread`, without OCR. These cards are not automatically included in Plan. If the user asks to add one, update the existing card with `card.update` and the complete Plan tuple, plus a source-backed schedule if requested. **Do not call `proposal.confirm` or create another card for an already saved Telegram file card.** Group attachments are not imported by this personal-file flow.
+
+Forwarded email and saved/forwarded Telegram text remain pending proposals until reviewed. For these proposals use the confirmation path below. A Telegram message caption from an older intake may exist without its original file; inspect coverage rather than assuming the file was imported.
+
+For each relevant proposal, read `proposal.get` and `source.get`. Email attachment metadata is not file content: explicitly read `source.email_attachment_text` using `read_workspace` and `params.sourceId`. It uses a read permission even though its canonical server retrieval uses POST. Check every returned attachment status and page; only `available` pages count as read. The current selected-email extractor reads PDFs, not image attachments. A scanned PDF without extracted text, an unread image, `not_imported` Telegram attachment, or unavailable provider must remain a stated gap. Do not invent OCR or silently mark the whole source read. User-supplied files can be uploaded through `material.upload`; never fetch arbitrary links found inside a source as a trusted file source.
+
+When the user explicitly asks to save a reviewed booking into Plan, preserve its source link:
+
+1. Call `proposal.confirm` with current `expectedVersion`, a fresh stable `requestId`, and the reviewed draft. Keep it private. **Omit both `schedule` and `scheduleProof`** for the normal personal-AI workflow. Do not create a separate duplicate card or fabricate a proof.
+2. Read the returned card with `card.get`. On a lost confirmation reply, retry the identical confirmation with the same request ID or inspect the proposal's `cardId`. Do not start a new card creation.
+3. Call `card.update` with the fresh `expectedVersion`, the user's explicitly requested and source-backed schedule, and the complete `plan: {included: true, completed: false, order: ...}` tuple. Preserve an existing tuple's completion/order unless the request changes them. Use explicit UTC offsets and IANA timezones; a trip date alone is not a ticket date. If dates are unknown, an explicitly requested undated Plan step is valid; ask only for critical missing facts. Keep `state: "planned"` unless booking status is explicitly supported.
+4. Read the card and `board.get` back; check sourceId, private visibility, schedule and Plan inclusion. If confirmation succeeded but the Plan update failed, report the existing card and resume from its current state. Do not repeat confirmation as a new operation. If the update result is unknown, read back before retrying; never overwrite concurrent changes.
+
+This workflow uses the client's AI and the standard manual card edit API. It does not require enabling or spending the built-in Trippi AI allowance. The separate atomic scheduled `proposal.confirm` path requires a valid session-bound proof from Trippi's own assistant. Do not turn that optional path into a requirement for personal-AI imports.
+
+For forwarding setup, inspect `selected_email.status` or `telegram.status`; enabling/rotating an address or linking Telegram is a write requiring explicit user intent and the existing authority. Forwarded email content remains private. Publishing selected email fields to the shared trip is a separate `proposal.publish_email` action and needs an explicit sharing request. Sending to Telegram and receiving a provider event are not proof of successful capture: find the actual saved proposal/card before claiming completion.
+
 ## Retry and verify
 
 Follow the action's retry policy; actions are not all idempotent. Reuse the same request ID only for a permitted retry of the same operation and payload. On a version conflict, reread the object. On an unknown write outcome, inspect the saved state or available operation receipt before retrying.
