@@ -1,0 +1,4 @@
+# Merge this section into your existing Codex configuration.
+# Complete OAuth with: codex mcp login trippi
+[mcp_servers.trippi]
+url = "https://trippitroppa.app/mcp"
