@@ -8,6 +8,8 @@
 https://trippitroppa.app/mcp
 ```
 
+[Official MCP Registry entry](https://registry.modelcontextprotocol.io/v0.1/servers/app.trippitroppa%2Ftrippi/versions/latest)
+
 This is the public integration kit for the hosted Trippi service: setup documentation, client examples, a portable agent skill, and MCP Registry metadata. It does not contain the full Trippi server or trip data. You do not need to clone this repository or run a local server to connect.
 
 ## Start in three steps

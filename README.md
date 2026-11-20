@@ -8,6 +8,8 @@
 https://trippitroppa.app/mcp
 ```
 
+[Запись в официальном MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers/app.trippitroppa%2Ftrippi/versions/latest)
+
 Это открытый комплект подключения к размещённому сервису Trippi: инструкции, примеры конфигурации, переносимый skill и метаданные MCP Registry. Полный сервер Trippi и данные поездок в этот репозиторий не входят. Для подключения не требуется скачивать этот репозиторий или запускать сервер на своём компьютере.
 
 ## Начать за три шага
