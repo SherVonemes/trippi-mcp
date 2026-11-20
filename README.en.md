@@ -64,3 +64,9 @@ The hosted HTTPS OAuth/PKCE → read → write → readback → revoke workflow 
 [ChatGPT, Codex, Claude Code and other clients](docs/clients.md) · [Protocol and tools](docs/protocol.md)
 
 The MIT license covers this integration kit. The hosted service requires a Trippi account and appropriate trip permissions.
+
+## Forwarded bookings
+
+In Trippi, open Settings → Connections to link your personal Telegram or enable the trip’s personal forwarding email address. Telegram `/trips` selects a trip and `/plan` reads its Plan. Forwarded text/email becomes a private review proposal. PDF/PNG/JPEG files sent to the personal bot chat (up to 10 MiB) become private cards with the original file; text PDFs are readable, images have no automatic OCR.
+
+Once MCP is connected, ask your AI to find the forwarded materials, check dates and places, and add the same source-linked card to your private Plan without duplicates. Built-in Trippi AI is not required. A pasted prompt does not install MCP; initial connection and sign-in remain necessary. [Step-by-step help](https://trippitroppa.app/help/ai-assistants.html#materials).
