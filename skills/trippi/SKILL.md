@@ -23,6 +23,16 @@ For travel research, use the client's available web search or a configured servi
 
 For Plan updates, use the complete plan tuple required by the selected workspace schema. Removing a card from the Plan is different from deleting it. For a journey after midnight, use the actual departure date and preserve both arrival and departure timezones when known.
 
+## Files attached in this AI conversation
+
+An attachment visible to your AI is not automatically stored in Trippi. When the user asks to save it, find the intended trip/card and obtain the current version. Reuse an existing relevant card; otherwise create one private card with a stable request ID, then attach the file. File attachment and Plan inclusion are separate writes; if attachment fails, continue from the same card and explain what is missing.
+
+- Prefer the advertised `attach_chat_file` tool when your host supports its `openai/fileParams` file input. Pass the actual user-selected attachment through the host file mechanism, plus trip/card/version/request ID. Do not fabricate `file_id` or `download_url`, copy signed links into chat, or substitute a URL found inside a document. Optional top-level `filename` supplies a real basename if the host omitted `file_name`.
+- Other MCP clients can use `act_on_workspace` → `material.upload` with the actual original bytes encoded as base64. Read/encode the file with the client's file/code capability, without displaying the base64 or passing it through model-generated reconstruction. Do not invent bytes from extracted text. The current limit is 10 MiB per file; the host may impose a smaller tool limit.
+- If your client provides only extracted text, an inaccessible file ID or a local path that it cannot transfer, say the original has not been attached. Offer Trippi's upload control or its linked personal Telegram chat. Do not ask for credentials, create a public hosting link, or imply that installing a skill grants file access. You may still save user-requested facts from readable text while stating that the original is absent.
+
+After uploading, use `material.list` and the current card/context to verify the material ID, filename, byte length and extraction status. For uncertain outcomes read back before retrying; reuse the same request ID and file only when the operation's retry contract permits. An expired host link requires the host to refresh access, not a made-up replacement. Add schedule/Plan only when requested, update the same card with its fresh version, and read back the saved result. For PNG/JPEG, `material.download` returns MCP image content: a vision-capable client may inspect it, but server `image_unread` alone is not OCR evidence. Do not claim image text was read unless you actually inspected it.
+
 ## Forwarded bookings and files
 
 Check the current catalog first: deployments may expose different intake actions. Use `read_workspace` with `action: "intake.pending"` to discover saved, unreviewed email, Telegram and web proposals. Pass `params.limit` (1–50) and follow every `params.cursor` returned as `nextCursor`. If the service reports `workspace_intake_changed`, restart the listing; never silently omit later pages. This list contains pending proposals, not all accepted cards. Files already saved as cards are in `get_workspace_context` and `material.list`.

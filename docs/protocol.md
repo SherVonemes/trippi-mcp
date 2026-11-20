@@ -20,6 +20,7 @@ Use discovery for authorization, token and client-registration endpoints. Do not
 | `get_workspace_context` | Read permitted shared and personal context, with pagination and coverage. |
 | `read_workspace` | Execute a named read from the catalog. |
 | `act_on_workspace` | Execute a named action from the catalog, subject to current permissions. |
+| `attach_chat_file` | Attach a user-selected AI-chat file to an existing permitted card via host file inputs. |
 | `get_trip_context`, `list_cards`, `get_item`, `search_cards`, `get_schedule` | Specialized compatible reads of personal cards. |
 | `create_card`, `update_card`, `get_operation` | Compatible personal-card writes and operation receipts. |
 
@@ -40,3 +41,11 @@ Read `proposal.get`, `source.get`, then explicitly use `source.email_attachment_
 To include a reviewed booking in Plan using a personal AI, confirm the proposal without `schedule`/`scheduleProof`, read the source-linked resulting card, then update that card with the user's explicit schedule and the complete Plan tuple. These are two writes: a successful confirmation followed by a failed Plan update leaves a valid saved card to resume from. Reuse the same confirmation request ID for an identical retry, and inspect current card state before retrying an uncertain update. No built-in Trippi AI configuration or allowance is required for this manual edit workflow. The separate atomic scheduled-confirmation endpoint requires a proof issued by the built-in assistant; never invent or reuse an unrelated proof.
 
 The [portable skill](../skills/trippi/SKILL.md) describes permissions, incomplete attachment handling and recovery. Private forwarding never automatically publishes documents to other participants. Shared publication is an explicit separate operation.
+
+## Files from the AI host
+
+`attach_chat_file` is an additive tool for an existing authorized card. Its top-level `file` parameter follows OpenAI file inputs: `download_url` and `file_id` required; `file_name` and `mime_type` optional, all four declared in the schema. Tool metadata declares `openai/fileParams: ["file"]`. Other inputs are `tripId`, `cardId`, `expectedVersion`, `requestId`, and optional `filename`. The signed download URL is used transiently and never persisted or echoed. Only HTTPS subdomains of `oaiusercontent.com`, no credentials/fragment/explicit port/redirects, and at most 10 MiB are accepted. Missing host metadata or an unsupported host gives an explicit error; the server does not dereference arbitrary user links or local file paths.
+
+The tool checks current write scope, card/source rights before and after downloading and delegates to the same canonical `material.upload` for parsing, optimistic versioning and same-request replay. It neither creates a card nor adds it to Plan automatically. File hosts that do not support this extension can still transfer exact bytes through ordinary `material.upload` base64. The experimental MCP files extension is not claimed as implemented.
+
+Contract reference: [OpenAI file inputs](https://developers.openai.com/plugins/reference#define-file-inputs). A supported descriptor does not prove that every client UI transfers attachments; refresh a cached tool catalog after upgrading and verify the actual material readback.
